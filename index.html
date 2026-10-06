@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="theme-color" content="#16120e" />
+<link rel="icon" href="icon-192.jpg" />
+<link rel="apple-touch-icon" href="icon-512.jpg" />
+<title>說出口 · SRGP 每日三步</title>
+<style>
+  :root {
+    --bg: #14110e;
+    --bg2: #1c1814;
+    --card: #241f1a;
+    --card2: #2c261f;
+    --line: rgba(243, 232, 214, 0.1);
+    --ink: #f6efe4;
+    --muted: #b7aa9a;
+    --faint: #8b7f71;
+    --amber: #e4b07a;
+    --amber-2: #f0d2ae;
+    --seal: #c4513c;
+    --seal-deep: #8d3224;
+    --moss: #8eae86;
+    --shadow: 0 18px 40px rgba(0,0,0,.35);
+    --radius: 22px;
+    --safe-b: env(safe-area-inset-bottom, 0px);
+    --safe-t: env(safe-area-inset-top, 0px);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: "PingFang TC", "Noto Sans TC", "Heiti TC", sans-serif;
+    background:
+      radial-gradient(1200px 500px at 80% -10%, rgba(196,81,60,.18), transparent 55%),
+      radial-gradient(800px 400px at -10% 20%, rgba(228,176,122,.12), transparent 50%),
+      var(--bg);
+    color: var(--ink);
+    min-height: 100dvh;
+  }
+  button, textarea, input { font-family: inherit; color: inherit; }
+  button { cursor: pointer; }
+  .app {
+    max-width: 480px;
+    margin: 0 auto;
+    min-height: 100dvh;
+    padding: calc(18px + var(--safe-t)) 18px calc(92px + var(--safe-b));
+  }
+  .top {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+  .mark {
+    width: 64px;
+    height: 64px;
+    object-fit: cover;
+    border-radius: 10px;
+    transform: rotate(-6deg);
+    box-shadow: 0 8px 18px rgba(0,0,0,.35);
+  }
+  h1 {
+    font-family: "Songti TC", "PMingLiU", serif;
+    font-weight: 600;
+    font-size: 28px;
+    margin: 0;
+    letter-spacing: .08em;
+  }
+  .sub { color: var(--muted); font-size: 13px; margin-top: 4px; letter-spacing: .04em; }
+  .stats {
+    display: grid;
+    grid-template-columns: 1.2fr .9fr .9fr;
+    gap: 8px;
+    margin: 16px 0 18px;
+  }
+  .stat {
+    background: rgba(255,255,255,.03);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 12px 12px 10px;
+  }
+  .stat b {
+    display: block;
+    font-family: "Songti TC", serif;
+    font-size: 22px;
+    font-weight: 600;
+  }
+  .stat span { color: var(--faint); font-size: 11px; letter-spacing: .08em; }
+  .path {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+    color: var(--faint);
+    font-size: 12px;
+  }
+  .dots { display: flex; gap: 6px; }
+  .dot {
+    width: 28px; height: 6px; border-radius: 99px;
+    background: #3a322b;
+  }
+  .dot.on { background: var(--amber); }
+  .card {
+    background: linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.015));
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 12px;
+    box-shadow: var(--shadow);
+    position: relative;
+    overflow: hidden;
+  }
+  .card.done { border-color: rgba(142,174,134,.45); }
+  .kicker {
+    display: flex; justify-content: space-between; align-items: center;
+    color: var(--amber-2); font-size: 12px; letter-spacing: .14em;
+  }
+  .card h2 { margin: 8px 0 6px; font-size: 20px; font-weight: 600; letter-spacing: .04em; }
+  .card p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.55; }
+  .row { display: flex; gap: 8px; margin-top: 14px; }
+  .btn {
+    border: 0; border-radius: 999px; padding: 12px 16px;
+    background: var(--ink); color: #1b1612; font-weight: 650; font-size: 14px;
+  }
+  .btn.ghost {
+    background: transparent; color: var(--ink);
+    border: 1px solid var(--line);
+  }
+  .btn.seal { background: var(--seal); color: #fff8f4; }
+  .btn:disabled { opacity: .45; }
+  .seal-stamp {
+    position: absolute; right: 14px; top: 14px;
+    width: 54px; height: 54px; border-radius: 50%;
+    border: 2px solid var(--seal); color: var(--seal);
+    display: none; place-items: center;
+    font-family: "Songti TC", serif; font-size: 13px;
+    transform: rotate(-12deg);
+    background: rgba(196,81,60,.08);
+  }
+  .card.done .seal-stamp { display: grid; }
+  .view { display: none; }
+  .view.on { display: block; }
+  .back {
+    background: transparent; border: 0; color: var(--muted);
+    padding: 0 0 12px; font-size: 14px;
+  }
+  .coach {
+    background: #2a211b;
+    border-left: 3px solid var(--amber);
+    border-radius: 12px;
+    padding: 12px 12px;
+    color: var(--amber-2);
+    font-size: 13.5px;
+    line-height: 1.6;
+    margin-bottom: 14px;
+  }
+  .passage {
+    font-family: "Songti TC", "PMingLiU", serif;
+    font-size: 18px;
+    line-height: 1.85;
+    letter-spacing: .04em;
+    background: #1a1613;
+    border-radius: 16px;
+    padding: 16px;
+    min-height: 180px;
+  }
+  .passage .seg { opacity: .38; }
+  .passage .seg.now {
+    opacity: 1;
+    background: rgba(228,176,122,.16);
+    border-radius: 4px;
+  }
+  .passage .seg.done { opacity: .72; }
+  .meta { color: var(--faint); font-size: 12px; margin: 8px 0 12px; }
+  .chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+  .chip {
+    border: 1px solid var(--line); background: transparent; color: var(--muted);
+    border-radius: 999px; padding: 8px 12px; font-size: 13px;
+  }
+  .chip.on { border-color: var(--amber); color: var(--amber-2); }
+  textarea, input[type="text"] {
+    width: 100%;
+    background: #1a1613;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 12px;
+    font-size: 16px;
+    line-height: 1.55;
+    outline: none;
+  }
+  textarea { min-height: 96px; resize: vertical; }
+  label.field { display: block; margin: 10px 0 6px; color: var(--faint); font-size: 12px; letter-spacing: .08em; }
+  .mirror-frame {
+    height: 220px; border-radius: 18px; overflow: hidden;
+    background:
+      linear-gradient(160deg, rgba(255,255,255,.05), transparent 40%),
+      #10100e;
+    border: 1px solid var(--line);
+    display: grid; place-items: center;
+    position: relative;
+    margin-bottom: 12px;
+  }
+  video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+  .mirror-hint { color: var(--faint); text-align: center; padding: 16px; font-size: 13px; line-height: 1.6; }
+  .q {
+    font-family: "Songti TC", serif;
+    font-size: 26px;
+    line-height: 1.45;
+    margin: 8px 0 12px;
+  }
+  .timer {
+    font-variant-numeric: tabular-nums;
+    font-size: 40px;
+    letter-spacing: .06em;
+    font-family: "Songti TC", serif;
+  }
+  .timer.hot { color: var(--amber); }
+  .nav {
+    position: fixed; left: 50%; transform: translateX(-50%);
+    bottom: 0; width: min(480px, 100%);
+    display: flex; gap: 8px;
+    padding: 10px 16px calc(10px + var(--safe-b));
+    background: rgba(20,17,14,.92);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid var(--line);
+  }
+  .nav button {
+    flex: 1; border: 0; background: transparent; color: var(--faint);
+    padding: 10px; border-radius: 12px; font-size: 14px;
+  }
+  .nav button.on { color: var(--ink); background: rgba(255,255,255,.05); }
+  .history-item {
+    border-bottom: 1px solid var(--line);
+    padding: 12px 0;
+  }
+  .history-item strong { display: block; margin-bottom: 4px; }
+  .history-item p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.5; }
+  .toast {
+    position: fixed; left: 50%; bottom: 96px; transform: translateX(-50%) translateY(12px);
+    background: #f6efe4; color: #1b1612; padding: 10px 14px; border-radius: 999px;
+    font-size: 13px; opacity: 0; pointer-events: none; transition: .25s ease;
+    max-width: 90%;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .month {
+    display: grid; grid-template-columns: repeat(10, 1fr); gap: 6px; margin-top: 8px;
+  }
+  .day {
+    aspect-ratio: 1; border-radius: 8px; background: #2a241e;
+    display: grid; place-items: center; font-size: 11px; color: var(--faint);
+  }
+  .day.full { background: var(--seal); color: white; }
+  .day.part { background: #5c4632; color: var(--amber-2); }
+  .checks { display: grid; gap: 8px; margin: 12px 0; }
+  .check {
+    display: flex; gap: 8px; align-items: flex-start;
+    font-size: 14px; color: var(--muted);
+  }
+  .check input { margin-top: 3px; accent-color: var(--seal); }
+</style>
+</head>
+<body>
+<div class="app">
+  <section id="home" class="view on">
+    <div class="top">
+      <div>
+        <h1>說出口</h1>
+        <div class="sub">每天三步，把話說清楚 · <a href="https://srgp.online/srgp-business-colorful-brand-zh.html#music-tools" style="color:#e4b07a">返回練習工具</a></div>
+      </div>
+      <img class="mark" src="logo.jpg" alt="說出口印記" />
+    </div>
+    <div class="stats">
+      <div class="stat"><b id="streak">0</b><span>連續完成</span></div>
+      <div class="stat"><b id="todayCount">0/3</b><span>今日關卡</span></div>
+      <div class="stat"><b id="monthCount">0/30</b><span>這個月</span></div>
+    </div>
+    <div class="path">
+      <span>今日路徑</span>
+      <div class="dots">
+        <i class="dot" id="d1"></i><i class="dot" id="d2"></i><i class="dot" id="d3"></i>
+      </div>
+    </div>
+    <article class="card" id="card-read">
+      <div class="seal-stamp">清楚</div>
+      <div class="kicker">第一關 · 嘴</div>
+      <h2>朗讀出聲</h2>
+      <p>找一段 300–500 字。不要趕，標點停一下，轉折也停。</p>
+      <div class="row"><button class="btn" onclick="openView('read')">開始咬字</button></div>
+    </article>
+    <article class="card" id="card-mirror">
+      <div class="seal-stamp">自己的話</div>
+      <div class="kicker">第二關 · 內容</div>
+      <h2>鏡子複述</h2>
+      <p>找一件今天的事，用自己的話重說一次。看著自己說。</p>
+      <div class="row"><button class="btn" onclick="openView('mirror')">對鏡重說</button></div>
+    </article>
+    <article class="card" id="card-ask">
+      <div class="seal-stamp">當場</div>
+      <div class="kicker">第三關 · 臨場</div>
+      <h2>自問自答</h2>
+      <p>抽一個問題，不要打草稿，用三句話說完。</p>
+      <div class="row"><button class="btn seal" onclick="openView('ask')">快問快答</button></div>
+    </article>
+    <div class="card">
+      <div class="kicker">三十日印</div>
+      <h2 style="font-size:18px">練滿一個月</h2>
+      <p>三關都完成的日子會蓋紅印。中斷只斷連續，月曆仍留著。</p>
+      <div class="month" id="month"></div>
+    </div>
+  </section>
+
+  <section id="read" class="view">
+    <button class="back" onclick="openView('home')">← 回到今日</button>
+    <div class="kicker">第一關</div>
+    <h1 style="font-size:26px;margin:6px 0 8px">朗讀出聲</h1>
+    <div class="coach">正確做法：一字一句咬清楚。逗號停半拍，句號停一拍。看到「但是、所以、其實」先停再接。讀完要能讓旁邊的人一句句跟上。</div>
+    <div class="chips" id="passageChips"></div>
+    <div class="passage" id="passage"></div>
+    <div class="meta" id="readMeta"></div>
+    <div class="row">
+      <button class="btn ghost" id="prevSeg" onclick="moveSeg(-1)">上一句</button>
+      <button class="btn" id="nextSeg" onclick="moveSeg(1)">下一句，這裡停</button>
+    </div>
+    <label class="field">或貼上自己的 300–500 字</label>
+    <textarea id="customPassage" placeholder="貼上一段你看得懂的文字"></textarea>
+    <div class="row"><button class="btn ghost" onclick="useCustom()">用這段來讀</button></div>
+    <div class="checks">
+      <label class="check"><input type="checkbox" id="c1" /> 沒有趕，字是咬清楚的</label>
+      <label class="check"><input type="checkbox" id="c2" /> 標點處有停</label>
+      <label class="check"><input type="checkbox" id="c3" /> 轉折處有停</label>
+    </div>
+    <button class="btn seal" id="finishRead" onclick="finishRead()">這一段讀完了</button>
+  </section>
+
+  <section id="mirror" class="view">
+    <button class="back" onclick="openView('home')">← 回到今日</button>
+    <div class="kicker">第二關</div>
+    <h1 style="font-size:26px;margin:6px 0 8px">對著鏡子重說</h1>
+    <div class="coach">正確做法：不要照念。先一句結論，再補經過，最後一句感覺。眼睛看著自己，不要看稿。</div>
+    <div class="mirror-frame" id="mirrorFrame">
+      <div class="mirror-hint" id="mirrorHint">打開前鏡頭，就是今天的鏡子。<br>開不了也沒關係，看著任一反光面說。</div>
+      <video id="cam" playsinline autoplay muted style="display:none"></video>
+    </div>
+    <button class="btn ghost" onclick="toggleCam()">打開／關閉鏡子</button>
+    <label class="field">發生了什麼（一句）</label>
+    <input id="m1" type="text" placeholder="今天在電話裡把結論先說了" />
+    <label class="field">我做了什麼（一句）</label>
+    <input id="m2" type="text" placeholder="我停了一下，再補原因" />
+    <label class="field">我的感覺或想法（一句）</label>
+    <input id="m3" type="text" placeholder="說完比想像中清楚" />
+    <div class="row" style="margin-top:14px">
+      <button class="btn seal" onclick="finishMirror()">我已用自己的話說完</button>
+    </div>
+  </section>
+
+  <section id="ask" class="view">
+    <button class="back" onclick="openView('home')">← 回到今日</button>
+    <div class="kicker">第三關</div>
+    <h1 style="font-size:26px;margin:6px 0 8px">當場回答</h1>
+    <div class="coach">正確做法：問題一出口就說。三句話：直接回答、一個具體例子、一句原因。不要停在「還好」「就那樣」。</div>
+    <div class="q" id="question">我今天最開心的一件事是什麼？</div>
+    <div class="timer" id="timer">0:45</div>
+    <div class="meta">計時是為了逼自己開口，不是要講得漂亮。</div>
+    <div class="row">
+      <button class="btn" onclick="startTimer()">開始說</button>
+      <button class="btn ghost" onclick="nextQuestion()">換一題</button>
+      <button class="btn ghost" id="micBtn" onclick="toggleMic()">用語音</button>
+    </div>
+    <label class="field">把剛才說的三句留下</label>
+    <textarea id="answer" placeholder="1 直接回答&#10;2 一個例子&#10;3 一句原因"></textarea>
+    <div class="row"><button class="btn seal" onclick="finishAsk()">這題答完了</button></div>
+  </section>
+
+  <section id="log" class="view">
+    <div class="top">
+      <div>
+        <h1>紀錄</h1>
+        <div class="sub">留下的話，就是下次能說出口的庫存</div>
+      </div>
+    </div>
+    <div id="history"></div>
+  </section>
+</div>
+<nav class="nav">
+  <button id="nav-home" class="on" onclick="openView('home')">今日</button>
+  <button id="nav-log" onclick="openView('log')">紀錄</button>
+</nav>
+<div class="toast" id="toast"></div>
+<script>
+const PASSAGES = [
+  { name: "廚房", text: "早上廚房只有水開的聲音。我先把今天要說的那句話想好，再打開冰箱。牛奶還在，麵包有一點硬，可是還能吃。很多人一開口就急著把所有細節倒出來，聽的人反而抓不到重點。我把麵包放進鍋裡，聽見它慢慢變熱。這和說話很像。先停一下，讓句子自己站穩，再往下接。標點不是裝飾，是給對方的座位。逗號處坐一下，句號處把這件事放好。轉折更要停，因為後面的話方向變了。如果我趕，字會黏在一起，意思也黏在一起。今天我想練的不是多說，是把已經會說的話說清楚。水開了。我倒一杯，坐下來，從第一句再讀一次。" },
+  { name: "電話", text: "那通電話原本可以很長。我先說結論：這件事我可以做，但要到星期五。對方停了一秒，然後問原因。我沒有從頭講所有經過，只補了兩件事實。一是材料今天才到，二是中間還要跟另一個人對過。說完我停住，不急著填滿沉默。沉默不是失敗，是讓對方聽進去。以前我會害怕空檔，於是用「然後、就是、那個」把句子縫起來，結果重點被縫丟了。這次我把轉折放慢。可是，材料晚到，所以星期五比較準。這一句裡面有兩個該停的地方。我都停了。掛電話以後，我發現自己沒有事後補一句的衝動。清楚，有時候就是少說一點，並且說在對的位置。" },
+  { name: "雨", text: "雨是在路口開始變大的。我站在屋簷下，看別人怎麼決定要不要衝過去。有人一邊跑一邊解釋，傘都拿不穩。有人先看車，再看燈，再走。第二種人比較像會說話的人。不是因為他話少，是因為他知道先看什麼。表達也有過馬路的順序。先告訴對方你在哪，再告訴他你要去哪，最後才講路上發生了什麼。如果三件一起說，聽的人會停在路中間。我等燈號變了才走。鞋子還是濕了，可是方向沒有亂。回到家，我想把這件事重說一次：雨變大，我等了一個燈，然後才過馬路。三句就夠。多出來的形容，可以等別人問再補。問，表示他跟上了。" },
+  { name: "情緒", text: "情緒一來，嘴會想立刻證明自己沒錯。這很正常，可是通常說不清楚。我今天生氣，不是因為整件事，是因為那一句被打斷。把範圍縮小，對方才聽得懂。所以練習的時候，不要說「我很不開心」，要說「今天下午那句話被打斷時，我很不開心」。時間、事情、感受，三樣放在同一句裡。然後停。不要馬上解釋對方的動機。動機是猜的，事情是發生的。猜會讓對話變成爭辯，事情還能被一起看。我把這段慢慢讀完，特別在「可是」前面停住。轉折是換方向，不是換氣的裝飾。讀熟以後，真正說話時才借得動這個停法。" }
+];
+const QUESTIONS = [
+  "我今天最開心的一件事是什麼？",
+  "讓我非常有情緒的是什麼？",
+  "今天有哪一句話，我其實沒說清楚？",
+  "如果只用三句話講今天，我會怎麼說？",
+  "今天我最想被理解的是什麼？",
+  "有一件事，我想用自己的話再重說一次，是什麼？"
+];
+const KEY = "shuochukou-v1";
+let state = load();
+let segIndex = 0;
+let segments = [];
+let qIndex = 0;
+let timer = null;
+let left = 45;
+let recognition = null;
+let listening = false;
+let camOn = false;
+
+function load() {
+  try { return JSON.parse(localStorage.getItem(KEY)) || { days: {}, history: [] }; }
+  catch { return { days: {}, history: [] }; }
+}
+function save() { localStorage.setItem(KEY, JSON.stringify(state)); }
+function todayKey() {
+  const d = new Date();
+  return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+}
+function day() {
+  const k = todayKey();
+  if (!state.days[k]) state.days[k] = { read: false, mirror: false, ask: false };
+  return state.days[k];
+}
+function splitSeg(text) {
+  const parts = text.split(/(?<=[，。！？；、])/).map(s => s.trim()).filter(Boolean);
+  return parts.length ? parts : [text];
+}
+function renderPassage() {
+  const box = document.getElementById("passage");
+  box.innerHTML = segments.map((s, i) => {
+    const cls = i < segIndex ? "done" : i === segIndex ? "now" : "";
+    return `<span class="seg ${cls}">${s}</span>`;
+  }).join("");
+  const len = segments.join("").length;
+  document.getElementById("readMeta").textContent = `${len} 字 · 第 ${Math.min(segIndex+1, segments.length)} / ${segments.length} 句 · 亮起來的地方就是現在要咬清楚的一句`;
+}
+function setPassage(text) {
+  segments = splitSeg(text);
+  segIndex = 0;
+  renderPassage();
+}
+function moveSeg(dir) {
+  segIndex = Math.max(0, Math.min(segments.length - 1, segIndex + dir));
+  renderPassage();
+  if (segIndex === segments.length - 1) toast("最後一句。讀完再勾下面三項。");
+}
+function useCustom() {
+  const t = document.getElementById("customPassage").value.trim();
+  if (t.length < 40) return toast("再長一點，才練得到停頓。");
+  setPassage(t);
+  toast(t.length + " 字，開始一句一句讀。");
+}
+function chips() {
+  const box = document.getElementById("passageChips");
+  box.innerHTML = PASSAGES.map((p, i) => `<button class="chip ${i===0?"on":""}" data-i="${i}">${p.name}</button>`).join("");
+  box.onclick = (e) => {
+    const b = e.target.closest(".chip");
+    if (!b) return;
+    [...box.children].forEach(c => c.classList.remove("on"));
+    b.classList.add("on");
+    setPassage(PASSAGES[+b.dataset.i].text);
+  };
+  setPassage(PASSAGES[0].text);
+}
+function streakCount() {
+  let n = 0;
+  const d = new Date();
+  if (!doneAll(todayKey())) d.setDate(d.getDate() - 1);
+  for (let i = 0; i < 365; i++) {
+    const k = d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+    if (!doneAll(k)) break;
+    n++;
+    d.setDate(d.getDate() - 1);
+  }
+  return n;
+}
+function doneAll(k) {
+  const x = state.days[k];
+  return !!(x && x.read && x.mirror && x.ask);
+}
+function monthDone() {
+  const now = new Date();
+  const prefix = now.getFullYear() + "-" + String(now.getMonth()+1).padStart(2,"0");
+  return Object.keys(state.days).filter(k => k.startsWith(prefix) && doneAll(k)).length;
+}
+function renderHome() {
+  const d = day();
+  document.getElementById("streak").textContent = streakCount();
+  const n = ["read","mirror","ask"].filter(k => d[k]).length;
+  document.getElementById("todayCount").textContent = n + "/3";
+  document.getElementById("monthCount").textContent = monthDone() + "/30";
+  ["read","mirror","ask"].forEach((k, i) => {
+    document.getElementById("card-" + k).classList.toggle("done", !!d[k]);
+    document.getElementById("d" + (i+1)).classList.toggle("on", !!d[k]);
+  });
+  const box = document.getElementById("month");
+  const now = new Date();
+  const y = now.getFullYear(), m = now.getMonth();
+  const days = new Date(y, m+1, 0).getDate();
+  box.innerHTML = "";
+  for (let i = 1; i <= days; i++) {
+    const k = y + "-" + String(m+1).padStart(2,"0") + "-" + String(i).padStart(2,"0");
+    const x = state.days[k];
+    const el = document.createElement("div");
+    const part = x && (x.read || x.mirror || x.ask);
+    el.className = "day" + (doneAll(k) ? " full" : part ? " part" : "");
+    el.textContent = i;
+    box.appendChild(el);
+  }
+}
+function renderHistory() {
+  const box = document.getElementById("history");
+  const items = [...state.history].reverse();
+  box.innerHTML = items.length ? items.slice(0, 30).map(h => `
+    <div class="history-item">
+      <strong>${h.date} · ${h.type}</strong>
+      <p>${h.text}</p>
+    </div>`).join("") : `<p class="meta">還沒有留下的話。完成第二關或第三關後，會出現在這裡。</p>`;
+}
+function openView(name) {
+  document.querySelectorAll(".view").forEach(v => v.classList.remove("on"));
+  document.getElementById(name).classList.add("on");
+  document.getElementById("nav-home").classList.toggle("on", name !== "log");
+  document.getElementById("nav-log").classList.toggle("on", name === "log");
+  if (name === "home") renderHome();
+  if (name === "log") renderHistory();
+  window.scrollTo(0, 0);
+}
+function toast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => t.classList.remove("show"), 2200);
+}
+function finishRead() {
+  if (segIndex < segments.length - 1) return toast("先把亮著的句子讀到最後一句。");
+  if (![...document.querySelectorAll("#read .checks input")].every(x => x.checked)) return toast("三項都做到，再蓋印。");
+  day().read = true;
+  save();
+  toast("第一關完成。嘴先熱好了。");
+  openView("home");
+}
+function finishMirror() {
+  const a = ["m1", "m2", "m3"].map(id => document.getElementById(id).value.trim());
+  if (a.some(x => x.length < 4)) return toast("三句都寫短一點也行，但不要空。");
+  day().mirror = true;
+  state.history.push({ date: todayKey(), type: "鏡子複述", text: a.join(" / ") });
+  save();
+  toast("第二關完成。這是你自己的話。");
+  openView("home");
+}
+function nextQuestion() {
+  qIndex = (qIndex + 1) % QUESTIONS.length;
+  document.getElementById("question").textContent = QUESTIONS[qIndex];
+}
+function startTimer() {
+  clearInterval(timer);
+  left = 45;
+  const el = document.getElementById("timer");
+  el.classList.add("hot");
+  el.textContent = "0:45";
+  timer = setInterval(() => {
+    left--;
+    el.textContent = "0:" + String(Math.max(left,0)).padStart(2,"0");
+    if (left <= 0) {
+      clearInterval(timer);
+      toast("時間到。把剛才說的三句留下。");
+    }
+  }, 1000);
+}
+function finishAsk() {
+  const text = document.getElementById("answer").value.trim();
+  if (text.length < 8) return toast("留下剛才說的話，哪怕只有三句。");
+  day().ask = true;
+  state.history.push({ date: todayKey(), type: "當場回答", text: document.getElementById("question").textContent + " — " + text });
+  save();
+  toast("第三關完成。今天的話已經說出口。");
+  openView("home");
+}
+async function toggleCam() {
+  const video = document.getElementById("cam");
+  const hint = document.getElementById("mirrorHint");
+  if (camOn) {
+    video.srcObject && video.srcObject.getTracks().forEach(t => t.stop());
+    video.style.display = "none";
+    hint.style.display = "block";
+    camOn = false;
+    return;
+  }
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false });
+    video.srcObject = stream;
+    video.style.display = "block";
+    hint.style.display = "none";
+    camOn = true;
+  } catch {
+    toast("相機開不了。看著玻璃或黑屏說也算。");
+  }
+}
+function toggleMic() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) return toast("這台瀏覽器不能語音轉文字，直接說，再把三句打下來。");
+  if (listening && recognition) { recognition.stop(); return; }
+  recognition = new SR();
+  recognition.lang = "zh-TW";
+  recognition.continuous = true;
+  recognition.interimResults = true;
+  recognition.onresult = (e) => {
+    let s = "";
+    for (let i = 0; i < e.results.length; i++) s += e.results[i][0].transcript;
+    document.getElementById("answer").value = s;
+  };
+  recognition.onend = () => { listening = false; document.getElementById("micBtn").textContent = "用語音"; };
+  recognition.onerror = () => toast("語音沒接上，改成自己打三句。");
+  recognition.start();
+  listening = true;
+  document.getElementById("micBtn").textContent = "停止";
+  if (!timer) startTimer();
+}
+chips();
+renderHome();
+document.getElementById("question").textContent = QUESTIONS[0];
+</script>
+</body>
+</html>
